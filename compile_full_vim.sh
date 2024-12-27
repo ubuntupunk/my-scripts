@@ -41,11 +41,10 @@ main(){
 		--enable-python3interp=yes \
 		--with-python-config-dir=/usr/lib/python3.11/config-3.11-aarch64-linux-gnu/ \
 		--with-python3-command=/usr/bin/python \
-        --enable-perlinterp \
-		--enable-luainterp \
+        --enable-perlinterp=yes \
+		--enable-luainterp=yes \
 		--enable-gui=gtk3 \
 		--enable-cscope \
-        --enable-sodium \
 		--prefix=/usr/local
 	make VIMRUNTIMEDIR=/usr/local/share/vim/vim91
 	sudo make install
