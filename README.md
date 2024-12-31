@@ -1,6 +1,8 @@
 # DavDev Scripts
 shell scripts collected since Ubuntu Hardy Heron was released, useful for reference purposes, some of them are a little outdated, but some are still current and quite useful.
 
+This project is licensed under the GNU General Public License v3.0.  See the LICENSE file for details.
+
 ## Script List
 | Script Name             | Description                                                                 |
 |--------------------------|-----------------------------------------------------------------------------|
