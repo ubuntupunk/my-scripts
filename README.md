@@ -1,5 +1,5 @@
 # DavDev Scripts
-shell scripts collected since Ubuntu Hardy Heron was released, useful for reference purposes, some of them are a little outdated, but some are still current and quite useful.
+Shell scripts collected since Ubuntu Hardy Heron was released, useful for reference purposes, a little outdated, but some are still current and quite useful.
 
 This project is licensed under the GNU General Public License v3.0.  See the LICENSE file for details.
 
@@ -19,12 +19,12 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `createasoundrc.sh`       | Creates a default audio device configuration file (~/.asoundrc) based on available sound cards. |
 | `Fixkey.sh`               | Adds an APT key using zenity for user input. Requires zenity and apt.       |
 | `Fixxkey.sh`              | Adds an APT key using zenity for user input. Requires zenity and apt.       |
-| `genDeployCodeberg`       |                                                                             |
-| `genDeployKey`            |                                                                             |
+| `genDeployCodeberg`       |  Generates an ssh key for Codeberg repositories.                                                |
+| `genDeployKey`            |  Generates an ssh key for Github repositories.                                                  |
 | `getmusic.sh`             | Downloads music from MySpace. Requires wget and rtmpdump.                  |
-| `git-submodule-remove`    |                                                                             |
+| `git-submodule-remove`    | Removes a git submodule from your superproject. Requires git.               |
 | `godownload.sh`           | Downloads and installs Go.  Detects the user's shell and adds necessary environment variables. Requires wget and tar. |
-| `i3-resurrect`            |                                                                             |
+| `i3-resurrect`            | i3-resurrect is a script for saving and restoring i3 workspace layouts.                                                                            |
 | `Install_QuickStart.sh`   | Downloads and installs QuickStart. Requires wget and tar.  Installs zenity if not already present. Requires root privileges. |
 | `install-build-deps.sh`   | Installs build dependencies for Chromium. Requires root privileges.  Supports Ubuntu 8.04, 8.10, and 9.04 on x86 architectures. |
 | `install-wine-deps.sh`    | Installs Wine build dependencies. Requires root privileges. Supports Ubuntu 7.10, 8.04, 8.10, and 9.04. |
