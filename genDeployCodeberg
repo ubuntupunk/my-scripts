@@ -35,7 +35,7 @@ else
   DATE_TIME=$(date +"%Y-%m-%d at %r")
   echo "
   # New Key Generated on $DATE_TIME
-  Host github.com-$REPO_NAME
+  Host codeberg.org-$REPO_NAME
     HostName codeberg.org
     User git
     IdentityFile $KEY_PATH" >> ~/.ssh/config
