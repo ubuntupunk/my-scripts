@@ -12,6 +12,7 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `fstat`                   | Enhanced file statistics tool that displays detailed file information with colored output and human-readable formatting. Shows size, permissions, ownership, timestamps, and more. |
 | `move_files.sh`           | Moves files from the current directory to a specified destination directory. Prompts the user for file name and destination. |
 | `sort_files.sh`           | Sorts files alphabetically in a specified directory. Prompts the user for file name and destination directory.  The script uses `find` and `mv` to move files. |
+| `zf.sh`                   | Smart and fast directory jumper that integrates with zoxide, fzf, and fd. Prioritizes frequently used directories and provides fuzzy search with preview. Requires fzf, zoxide, fd, and optionally eza. Source this script in your shell configuration. |
 
 ### 🎥 Media & Entertainment
 | Script Name             | Description                                                                 |
