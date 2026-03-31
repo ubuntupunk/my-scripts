@@ -13,6 +13,7 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `move_files.sh`           | Moves files from the current directory to a specified destination directory. Prompts the user for file name and destination. |
 | `sort_files.sh`           | Sorts files alphabetically in a specified directory. Prompts the user for file name and destination directory.  The script uses `find` and `mv` to move files. |
 | `zf.sh`                   | Smart and fast directory jumper that integrates with zoxide, fzf, and fd. Prioritizes frequently used directories and provides fuzzy search with preview. Requires fzf, zoxide, fd, and optionally eza. Source this script in your shell configuration. |
+| `f.sh`                    | Runs commands with fzf for interactive file/path selection. Usage: f cd [options], f cat [options], f vim [options], etc. Maintains shell history. Requires fzf. |
 
 ### 🎥 Media & Entertainment
 | Script Name             | Description                                                                 |
@@ -36,6 +37,8 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `ubucleaner.sh`           | Cleans the APT cache, removes old configuration files, and removes old kernels. Requires root privileges. |
 | `vacuum.sh`               | Runs VACUUM on all SQLite databases found in the user's Firefox profile directories.  Checks if Firefox is running before proceeding. |
 | `vacuummoz.sh`            | Runs VACUUM on all SQLite databases in the user's Firefox and Thunderbird profile directories. Checks if Firefox and Thunderbird are running before proceeding. |
+| `vacuum_vscoders.sh`      | Removes unwanted locale files and license files from VS Code-based IDEs (Windsurf, Cursor, VSCode, VSCodium, Antigravity) to save disk space. Requires root privileges. |
+| `purge-alien-loc.sh`      | Removes oriental/medio-oriental/african fonts and LibreOffice localizations not useful in IT/GB/USA. Keeps en-gb, en-us, it. Requires root privileges. |
 
 ### 🌐 Network & Configuration
 | Script Name             | Description                                                                 |
@@ -53,6 +56,7 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `genDeployCodeberg`       |  Generates an ssh key for Codeberg repositories.                                                |
 | `genDeployKey`            |  Generates an ssh key for Github repositories.                                                  |
 | `git-submodule-remove`    | Removes a git submodule from your superproject. Requires git.               |
+| `submodule-manager.sh`    | Manages git submodules: add, remove, or update submodules with colored output. Interactive prompts for user input. |
 | `godownload.sh`           | Downloads and installs Go.  Detects the user's shell and adds necessary environment variables. Requires wget and tar. |
 | `install-build-deps.sh`   | Installs build dependencies for Chromium. Requires root privileges.  Supports Ubuntu 8.04, 8.10, and 9.04 on x86 architectures. |
 | `install-wine-deps.sh`    | Installs Wine build dependencies. Requires root privileges. Supports Ubuntu 7.10, 8.04, 8.10, and 9.04. |
