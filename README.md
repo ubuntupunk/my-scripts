@@ -39,6 +39,7 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `vacuummoz.sh`            | Runs VACUUM on all SQLite databases in the user's Firefox and Thunderbird profile directories. Checks if Firefox and Thunderbird are running before proceeding. |
 | `vacuum_vscoders.sh`      | Removes unwanted locale files and license files from VS Code-based IDEs (Windsurf, Cursor, VSCode, VSCodium, Antigravity) to save disk space. Requires root privileges. |
 | `purge-alien-loc.sh`      | Removes oriental/medio-oriental/african fonts and LibreOffice localizations not useful in IT/GB/USA. Keeps en-gb, en-us, it. Requires root privileges. |
+| `clean_logs.sh`           | Cleans logs and caches from npm, AI tools (Gemini, Kimi, Qwen), pip, gem, and browser caches (Firefox, Zen) if browsers are not running. Reports space reclaimed. |
 
 ### 🌐 Network & Configuration
 | Script Name             | Description                                                                 |
