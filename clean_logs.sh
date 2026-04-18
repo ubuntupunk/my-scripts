@@ -16,6 +16,7 @@ FIREFOX_CACHE="$HOME/.cache/mozilla/firefox"
 FIREFOX_SNAP_CACHE="$HOME/snap/firefox/common/.cache/mozilla/firefox"
 ZEN_CACHE="$HOME/.cache/zen/*/*.default-release/cache2"
 #CHROME_CACHE="$HOME/.cache/google-chrome"
+PNPM_CACHE="$HOME/.cache/pnpm"
 
 # 2 logic to calculate total size of all targets in bytes
 get_size() {
@@ -41,6 +42,12 @@ for dir in "${LOG_TARGETS[@]}"; do
     echo "Cleaned $dir"
   fi
 done
+
+#wipe metadata cache
+if [ -d "$PNPM_CACHE" ]; then
+  rm -rf "$PNPM_CACHE"/*
+  echo "Cleaned $PNPM_CACHE"
+fi
 
 #4. Clean Browsers (only if closed)
 
@@ -75,7 +82,7 @@ fi
 
 # 5. Final Reporting
 
-POST_SIZE=$(get_size "${LOG_TARGETS[@]}" "$FIREFOX_CACHE" "$FIREFOX_SNAP_CACHE" "$ZEN_CACHE")
+POST_SIZE=$(get_size "${LOG_TARGETS[@]}" "$FIREFOX_CACHE" "$FIREFOX_SNAP_CACHE" "$ZEN_CACHE" "$PNPM_CACHE")
 SAVED_BYTES=$((PRE_SIZE - POST_SIZE))
 # Convert bytes to human-readable format (MB)
 SAVED_MB=$(echo "scale=2; $SAVED_BYTES / 1024 / 1024" | bc)
