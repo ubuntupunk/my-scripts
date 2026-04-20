@@ -75,7 +75,7 @@ for profile_base in "${PROFILE_DIRS[@]}"; do
         echo -e "    running VACUUM...\n"
 
           for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-            sqlite3 $F "VACUUM;"
+            sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
           done
 
         echo -e "Done in $(pwd)\n"
@@ -98,7 +98,7 @@ for profile_base in "${ZEN_PROFILE_DIRS[@]}"; do
           echo -e "    running VACUUM...\n"
 
           for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-            sqlite3 $F "VACUUM;"
+            sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
           done
 
           echo -e "Done in Zen $(pwd)\n"
@@ -118,7 +118,7 @@ if [ -d "$OPENCODE_DIR" ]; then
     echo -e "    running VACUUM...\n"
 
     for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-      sqlite3 $F "VACUUM;"
+      sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
     done
 
     echo -e "Done in Opencode $(pwd)\n"
@@ -135,7 +135,7 @@ if [ -d "$KILO_DIR" ]; then
     echo -e "    running VACUUM...\n"
 
     for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-      sqlite3 $F "VACUUM;"
+      sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
     done
 
     echo -e "Done in Kilo $(pwd)\n"
