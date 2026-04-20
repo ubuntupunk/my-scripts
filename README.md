@@ -37,8 +37,8 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `randomac.sh`             | Changes the MAC address of eth0 to a random address. Requires root privileges. |
 | `remove_old_kernels.sh`   | Removes old Linux kernels.  Prints a list of kernels to be removed in a dry run; use `sudo remove_old_kernels.sh exec` to actually remove them. Requires root privileges. |
 | `ubucleaner.sh`           | Cleans the APT cache, removes old configuration files, and removes old kernels. Requires root privileges. |
-| `vacuum.sh`               | Runs VACUUM on all SQLite databases found in the user's Firefox profile directories.  Checks if Firefox is running before proceeding. |
-| `vacuummoz.sh`            | Runs VACUUM on all SQLite databases in the user's Firefox and Thunderbird profile directories. Checks if Firefox and Thunderbird are running before proceeding. |
+| `vacuum.sh`               | Runs VACUUM on SQLite databases (.sqlite/.db) in Firefox, Zen browser, Opencode, and Kilo profiles. Checks if any applications are running before proceeding. |
+| `vacuummoz.sh`            | Runs VACUUM on SQLite databases in Firefox, Thunderbird, Zen browser, Opencode, and Kilo profiles. Checks if any applications are running before proceeding. |
 | `vacuum_vscoders.sh`      | Removes unwanted locale files and license files from VS Code-based IDEs (Windsurf, Cursor, VSCode, VSCodium, Antigravity) to save disk space. Requires root privileges. |
 | `vacuum_vscode_locales_licenses.sh` | Alternative script to clean VS Code locales and licenses. |
 | `vacuum_vscode_locales_licensesV2.sh` | Updated version of VS Code cleaner script. |
