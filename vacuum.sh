@@ -15,16 +15,16 @@ fi
 
 curdir=$(pwd)
 
-# Function to calculate total size of .sqlite files in directories
+# Function to calculate total size of .sqlite and .db files in directories
 get_sqlite_size() {
   local total=0
   for base_dir in "$@"; do
     if [ -d "$base_dir" ]; then
-      # Find all .sqlite files and sum their sizes
+      # Find all .sqlite and .db files and sum their sizes
       while IFS= read -r -d '' file; do
         size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
         total=$((total + size))
-      done < <(find "$base_dir" -type f -name "*.sqlite" -print0)
+      done < <(find "$base_dir" -type f \( -name "*.sqlite" -o -name "*.db" \) -print0)
     fi
   done
   echo "$total"
@@ -71,9 +71,9 @@ for profile_base in "${PROFILE_DIRS[@]}"; do
         echo "In $(pwd)"
         echo -e "    running VACUUM...\n"
 
-        for F in $(find . -type f -name '*.sqlite' -print); do
-          sqlite3 $F "VACUUM;"
-        done
+          for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
+            sqlite3 $F "VACUUM;"
+          done
 
         echo -e "Done in $(pwd)\n"
       else
@@ -94,7 +94,7 @@ for profile_base in "${ZEN_PROFILE_DIRS[@]}"; do
           echo "In Zen $(pwd)"
           echo -e "    running VACUUM...\n"
 
-          for F in $(find . -type f -name '*.sqlite' -print); do
+          for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
             sqlite3 $F "VACUUM;"
           done
 
@@ -114,7 +114,7 @@ if [ -d "$OPENCODE_DIR" ]; then
     echo "In Opencode $(pwd)"
     echo -e "    running VACUUM...\n"
 
-    for F in $(find . -type f -name '*.sqlite' -print); do
+    for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
       sqlite3 $F "VACUUM;"
     done
 
