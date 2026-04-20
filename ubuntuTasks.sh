@@ -1,5 +1,5 @@
 #!/bin/bash
-ans=$(zenity  --list  --width=350 --height=400 --text "Initial Ubuntu Tasks" --checklist  --column "Select" --column "Options" TRUE "Uninstall Mono" TRUE "Install SBackup" TRUE "Install Restricted Extras & Codecs" TRUE "Install MS Core Fonts" TRUE "Install FileZilla FTP" TRUE "Install Wine" TRUE "Install VLC Media Player" TRUE "Install K3B" TRUE "Enable 5.1 Surround Sound" --separator=":");
+ans=$(zenity  --list  --width=350 --height=400 --text "Initial Ubuntu Tasks" --checklist  --column "Select" --column "Options" TRUE "Uninstall Mono" TRUE "Install Déjà Dup" TRUE "Install Restricted Extras & Codecs" TRUE "Install MS Core Fonts" TRUE "Install FileZilla FTP" TRUE "Install Wine" TRUE "Install VLC Media Player" TRUE "Install K3B" TRUE "Enable 5.1 Surround Sound" --separator=":");
 
 arr=$(echo $ans | tr "\:" "\n")
 
@@ -12,26 +12,26 @@ do
 		echo "=================================================="
 		sudo apt-get -y remove --purge mono-common libmono0
 	fi
-	if [ $x = "SBackup" ]
+	if [ "$x" = "Install Déjà Dup" ]
 	then
 		echo "=================================================="
-		echo "Installing SBackup"
+		echo "Installing Déjà Dup"
 		echo "=================================================="
-		sudo apt-get -y install sbackup
+		sudo apt-get -y install deja-dup
 	fi
 	if [ $x = "Restricted" ]
 	then
 		echo "=================================================="
 		echo "Installing Restricted Extras & Codecs"
 		echo "=================================================="
-		sudo apt-get -y install ubuntu-restricted-extras && sudo aptitude install w32codecs
+		sudo apt-get -y install ubuntu-restricted-extras
 	fi
 	if [ $x = "Fonts" ]
 	then
 		echo "=================================================="
 		echo "Installing Fonts"
 		echo "=================================================="
-		sudo apt-get -y install msttcorefonts && sudo fc-cache -fv
+		sudo apt-get -y install ttf-mscorefonts-installer && sudo fc-cache -fv
 	fi
 	if [ $x = "VLC" ]
 	then

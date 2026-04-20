@@ -1,4 +1,10 @@
 #!/bin/sh
+
+# Copyright (c) 2024 @ubuntupunk. All rights reserved.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation.
+
 # This script generates a ssh key for a single repository
 # and adds a custom configuration to the users (not global) ssh config file,
 # and outputs the public key for you to copy and paste as the repo deploy key
@@ -14,10 +20,8 @@
 # If you make a mistake with what you pass in, you can remove change from your ~/.ssh/config file
 # by deleting the most recent "New Key Generated on...." and deleting the related .pub and private keys
 
-
 # Check if user passed in both parameters
-if [ -z "$1" ] || [ -z "$2" ]
-then
+if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Make sure to pass in both parameters REPO_OWNER_NAME and REPO_NAME. Example:"
   echo "./genDeployCodeberg.sh yourname hello_world"
 else
@@ -38,7 +42,7 @@ else
   Host codeberg.org-$REPO_NAME
     HostName codeberg.org
     User git
-    IdentityFile $KEY_PATH" >> ~/.ssh/config
+    IdentityFile $KEY_PATH" >>~/.ssh/config
   echo ""
   echo "Here is your hostname's alias to interact with the repository using SSH:"
   echo "git clone git@codeberg.org-$REPO_NAME:$REPO_OWNER_NAME/$REPO_NAME.git"

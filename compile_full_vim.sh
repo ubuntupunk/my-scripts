@@ -17,30 +17,26 @@ main(){
 		vim-gui-common
 	echo "y" | sudo apt-get install \
 		libncurses5-dev \
-		libgnome3-dev \
-		libgnomeui-dev \
-		libgtk2.0-dev \
+		libgtk-3-dev \
 		libatk1.0-dev \
-		libbonoboui2-dev \
 		libcairo2-dev \
 		liblua5.3-dev \
-        libsodium-dev \
         libx11-dev \
 		libxpm-dev \
 		libxt-dev \
 		python3-dev \
         ruby-dev \
-		git
+		git \
+		build-essential
 
 	cd /tmp || exit
-	git clone git@github.com:vim/vim.git --depth=1
+	git clone https://github.com/vim/vim.git --depth=1
 	cd vim || exit
 	./configure --with-features=huge \
 		--enable-multibyte \
 		--enable-rubyinterp \
 		--enable-python3interp=yes \
-		--with-python-config-dir=/usr/lib/python3.11/config-3.11-aarch64-linux-gnu/ \
-		--with-python3-command=/usr/bin/python \
+		--with-python3-command=python3 \
         --enable-perlinterp=yes \
 		--enable-luainterp=yes \
 		--enable-gui=gtk3 \

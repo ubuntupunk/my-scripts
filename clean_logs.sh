@@ -1,10 +1,17 @@
 #!/bin/bash
 
+# Copyright (c) 2024 @ubuntupunk. All rights reserved.
+## This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation.
+
 # 1. Configuration
 LOG_TARGETS=(
   "$HOME/.npm/_logs"
+  "$HOME/.npm/_cacache/tmp"
   "$HOME/.gemini/tmp"
   "$HOME/.kimi/logs"
+  "$HOME/.local/share/kilo/log"
   "$HOME/.local/share/opencode/log"
   "$HOME/.qwen/tmp"
   "$HOME/.cache/pip"
@@ -89,4 +96,4 @@ SAVED_MB=$(echo "scale=2; $SAVED_BYTES / 1024 / 1024" | bc)
 
 echo "--- Cleanup Complete ---"
 echo "Space reclaimed: ${SAVED_MB} MB"
-echo "-------------------------------"
+echo "------------------------"

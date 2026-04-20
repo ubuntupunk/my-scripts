@@ -1,0 +1,13 @@
+#!/bin/env bash
+
+# Check if wf-recorder is already running
+if pgrep -x "wf-recorder" >/dev/null; then
+  # If running, stop it gracefully with SIGINT (same as Ctrl+C)
+  pkill -INT -x wf-recorder
+  exit 0
+else
+  # If not running, start a new recording with a timestamped filename
+  FILENAME="$HOME/Videos/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4"
+  # Use -a to include default audio if desired
+  wf-recorder -f "$FILENAME" &
+fi

@@ -1,18 +1,27 @@
 #!/bin/bash -e
 
+# Copyright (c) 2024 @ubuntupunk. All rights reserved.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation.
+
 # Script to install everything needed to build chromium (well, ideally, anyway)
 # See http://code.google.com/p/chromium/wiki/LinuxBuildInstructions
 # and http://code.google.com/p/chromium/wiki/LinuxBuild64Bit
 
-if ! egrep -q "Ubuntu 8.04|Ubuntu 8.10|Ubuntu 9.04" /etc/issue; then
-  echo "Only Ubuntu 8.04, 8.10, and 9.04 are currently supported" >&2
+if ! grep -q "Ubuntu 24.04" /etc/os-release; then
+  echo "Only Ubuntu 24.04 is currently supported" >&2
   exit 1
 fi
 
-if ! uname -m | egrep -q "i686|x86_64"; then
-  echo "Only x86 architectures are currently supported" >&2
-  exit
+if ! uname -m | grep -q "x86_64"; then
+  echo "Only x86_64 architecture is currently supported" >&2
+  exit 1
 fi
+
+# Add i386 architecture for 32bit compatibility
+sudo dpkg --add-architecture i386
+sudo apt-get update
 
 if [ "x$(id -u)" != x0 ]; then
   echo "Running as non-root user."
@@ -22,30 +31,31 @@ fi
 
 # Packages need for development
 dev_list="bison fakeroot flex g++ g++-multilib gperf libasound2-dev
-          libcairo2-dev libgconf2-dev libglib2.0-dev libgtk2.0-dev libnspr4-dev
-          libnss3-dev libsqlite3-dev lighttpd msttcorefonts perl php5-cgi
-          pkg-config python subversion sun-java6-fonts wdiff"
+          libcairo2-dev libglib2.0-dev libgtk-3-dev libnspr4-dev
+          libnss3-dev libsqlite3-dev libxss1 libgconf-2-4 libxtst6
+          libxrandr2-dev libasound2-dev libpangocairo-1.0-0 libatk1.0-0
+          libcairo-gobject2 libgtk-3-0 libgdk-pixbuf2.0-0 perl
+          pkg-config python3 git fonts-liberation"
 
 # Full list of required run-time libraries
 lib_list="libatk1.0-0 libc6 libasound2 libcairo2 libexpat1 libfontconfig1
-          libfreetype6 libglib2.0-0 libgtk2.0-0 libnspr4-0d libnss3-1d
-          libpango1.0-0 libpcre3 libpixman-1-0 libpng12-0 libstdc++6
-          libsqlite3-0 libx11-6 libxau6 libxcb-xlib0 libxcb1 libxcomposite1
+          libfreetype6 libglib2.0-0 libgtk-3-0 libnspr4-0 libnss3
+          libpango1.0-0 libpcre3 libpixman-1-0 libpng16-16 libstdc++6
+          libsqlite3-0 libx11-6 libxau6 libxcb1 libxcomposite1
           libxcursor1 libxdamage1 libxdmcp6 libxext6 libxfixes3 libxi6
           libxinerama1 libxrandr2 libxrender1 zlib1g"
 
 # Debugging symbols for all of the run-time libraries
-dbg_list="libatk1.0-dbg libc6-dbg libcairo2-dbg libfontconfig1-dbg
-          libglib2.0-0-dbg libgtk2.0-0-dbg libnspr4-0d-dbg libnss3-1d-dbg
+dbg_list="libatk1.0-0-dbg libc6-dbg libcairo2-dbg libfontconfig1-dbg
+          libglib2.0-0-dbg libgtk-3-0-dbg libnspr4-0-dbg libnss3-dbg
           libpango1.0-0-dbg libpcre3-dbg libpixman-1-0-dbg libx11-6-dbg
-          libxau6-dbg libxcb-xlib0-dbg libxcb1-dbg libxcomposite1-dbg
+          libxau6-dbg libxcb1-dbg libxcomposite1-dbg
           libxcursor1-dbg libxdamage1-dbg libxdmcp6-dbg libxext6-dbg
           libxfixes3-dbg libxi6-dbg libxinerama1-dbg libxrandr2-dbg
           libxrender1-dbg zlib1g-dbg"
 
 # Standard 32bit compatibility libraries
-cmp_list="ia32-libs lib32readline-dev lib32stdc++6 lib32z1 lib32z1-dev
-          libc6-dev-i386 libc6-i386"
+cmp_list="libreadline8:i386 libstdc++6:i386 libz1:i386 libc6:i386 libgcc-s1:i386"
 
 # Waits for the user to press 'Y' or 'N'. Either uppercase of lowercase is
 # accepted. Returns 0 for 'Y' and 1 for 'N'. If an optional parameter has
@@ -56,28 +66,34 @@ cmp_list="ia32-libs lib32readline-dev lib32stdc++6 lib32z1 lib32z1-dev
 yes_no() {
   local c
   while :; do
-    c="$(trap 'stty echo -iuclc icanon 2>/dev/null' EXIT INT TERM QUIT
-         stty -echo iuclc -icanon 2>/dev/null
-         dd count=1 bs=1 2>/dev/null | od -An -tx1)"
+    c="$(
+      trap 'stty echo -iuclc icanon 2>/dev/null' EXIT INT TERM QUIT
+      stty -echo iuclc -icanon 2>/dev/null
+      dd count=1 bs=1 2>/dev/null | od -An -tx1
+    )"
     case "$c" in
-      " 0a") if [ -n "$1" ]; then
-               [ $1 -eq 0 ] && echo "Y" || echo "N"
-               return $1
-             fi
-             ;;
-      " 79") echo "Y"
-             return 0
-             ;;
-      " 6e") echo "N"
-             return 1
-             ;;
-      "")    echo "Aborted" >&2
-             exit 1
-             ;;
-      *)     # The user pressed an unrecognized key. As we are not echoing
-             # any incorrect user input, alert the user by ringing the bell.
-             (tput bel) 2>/dev/null
-             ;;
+    " 0a")
+      if [ -n "$1" ]; then
+        [ $1 -eq 0 ] && echo "Y" || echo "N"
+        return $1
+      fi
+      ;;
+    " 79")
+      echo "Y"
+      return 0
+      ;;
+    " 6e")
+      echo "N"
+      return 1
+      ;;
+    "")
+      echo "Aborted" >&2
+      exit 1
+      ;;
+    *) # The user pressed an unrecognized key. As we are not echoing
+      # any incorrect user input, alert the user by ringing the bell.
+      (tput bel) 2>/dev/null
+      ;;
     esac
   done
 }
@@ -102,11 +118,11 @@ sudo apt-get update
 # We then re-run "apt-get" with just the list of missing packages.
 echo "Finding missing packages..."
 new_list="$(yes n |
-            LANG=C sudo apt-get install --reinstall \
-                         ${dev_list} ${lib_list} ${dbg_list} \
-                         $([ "$(uname -m)" = x86_64 ] && echo ${cmp_list}) \
-                         2>/dev/null |
-            sed -e '1,/The following NEW packages will be installed:/d;s/^  //;t;d')"
+  LANG=C sudo apt-get install --reinstall \
+    ${dev_list} ${lib_list} ${dbg_list} \
+    $([ "$(uname -m)" = x86_64 ] && echo ${cmp_list}) \
+    2>/dev/null |
+  sed -e '1,/The following NEW packages will be installed:/d;s/^  //;t;d')"
 
 echo "Installing missing packages..."
 sudo apt-get install ${new_list}
@@ -141,15 +157,15 @@ if [ "$(uname -m)" = x86_64 ]; then
 	Dir::State::Lists "${tmp}/apt/lists/";
 	Dir::State::status "${tmp}/status";
 	EOF
-  
+
   # Download 32bit packages
   echo "Computing list of available 32bit packages..."
   apt-get -c="${tmp}/apt/apt.conf" update
 
   echo "Downloading available 32bit packages..."
   apt-get -c="${tmp}/apt/apt.conf" \
-          --yes --download-only --force-yes --reinstall  install \
-          ${lib_list} ${dbg_list}
+    --yes --download-only --force-yes --reinstall install \
+    ${lib_list} ${dbg_list}
 
   # Open packages, remove everything that is not a library, move the
   # library to a lib32 directory and package everything as a *.deb file.
@@ -157,7 +173,7 @@ if [ "$(uname -m)" = x86_64 ]; then
   for i in ${lib_list} ${dbg_list}; do
     orig="$(echo "${tmp}/${i}"_*_i386.deb)"
     compat="$(echo "${orig}" |
-              sed -e 's,\(_[^_/]*_\)i386\(.deb\),-ia32\1amd64\2,')"
+      sed -e 's,\(_[^_/]*_\)i386\(.deb\),-ia32\1amd64\2,')"
     rm -rf "${tmp}/staging"
     msg="$(fakeroot -u sh -exc '
       # Unpack 32bit Debian archive
@@ -218,7 +234,7 @@ if [ "$(uname -m)" = x86_64 ]; then
       cd ..
       dpkg --build staging/dpkg .' 2>&1)"
     compat="$(eval echo $(echo "${compat}" |
-                          sed -e 's,_[^_/]*_amd64.deb,_*_amd64.deb,'))"
+      sed -e 's,_[^_/]*_amd64.deb,_*_amd64.deb,'))"
     [ -r "${compat}" ] || {
       echo "${msg}" >&2
       echo "Failed to build new Debian archive!" >&2
@@ -226,22 +242,22 @@ if [ "$(uname -m)" = x86_64 ]; then
     }
 
     msg="$(sudo dpkg -i "${compat}" 2>&1)" && {
-        echo "Installed ${compat##*/}"
-      } || {
-        # echo "${msg}" >&2
-        echo "Skipped ${compat##*/}"
-      }
+      echo "Installed ${compat##*/}"
+    } || {
+      # echo "${msg}" >&2
+      echo "Skipped ${compat##*/}"
+    }
   done
 
   # Add symbolic links for developing 32bit code
   echo "Adding missing symbolic links, enabling 32bit code development..."
   for i in $(find /lib32 /usr/lib32 -maxdepth 1 -name \*.so.\* |
-             sed -e 's/[.]so[.][0-9].*/.so/' |
-             sort -u); do
+    sed -e 's/[.]so[.][0-9].*/.so/' |
+    sort -u); do
     [ "x${i##*/}" = "xld-linux.so" ] && continue
     [ -r "$i" ] && continue
     j="$(ls "$i."* | sed -e 's/.*[.]so[.]\([^.]*\)$/\1/;t;d' |
-         sort -n | tail -n 1)"
+      sort -n | tail -n 1)"
     [ -r "$i.$j" ] || continue
     sudo ln -s "${i##*/}.$j" "$i"
   done

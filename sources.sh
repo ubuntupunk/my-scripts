@@ -778,6 +778,48 @@ echo "" >> $FICHERO echo "">> $ FILE
 
 ;; ;;
 
+\"28\") \ "28 \")
+
+## repositorio de Node.js LTS # # Repository Node.js LTS
+
+echo "#### Node.js LTS - https://deb.nodesource.com/" >> $FICHERO
+
+echo "## Run: curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -" >> $FICHERO
+
+echo "deb https://deb.nodesource.com/node_lts.x $SISTEMA main" >> $FICHERO
+
+echo "" >> $FICHERO
+
+;; ;;
+
+\"29\") \ "29 \")
+
+## repositorio de Docker CE # # Repository Docker CE
+
+echo "#### Docker CE - https://download.docker.com/linux/ubuntu" >> $FICHERO
+
+echo "## Run: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg" >> $FICHERO
+
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $SISTEMA stable" >> $FICHERO
+
+echo "" >> $FICHERO
+
+;; ;;
+
+\"30\") \ "30 \")
+
+## repositorio de Visual Studio Code # # Repository Visual Studio Code
+
+echo "#### Visual Studio Code - https://packages.microsoft.com/repos/code" >> $FICHERO
+
+echo "## Run: wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && sudo install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/ && rm packages.microsoft.gpg" >> $FICHERO
+
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code $SISTEMA main" >> $FICHERO
+
+echo "" >> $FICHERO
+
+;; ;;
+
 esac esac
 
 done done
@@ -810,7 +852,9 @@ dialog --backtitle "Release Selection" \ dialog - backtitle "Release Selection" 
 
 3 "Jaunty 9.04" on \ 3 "Jaunty 9.04" on \
 
-4 "Karmic 9.10" off 2> $tempfile 4 "Karmic 9.10" off 2> $ tempfile
+4 "Karmic 9.10" off 2> $tempfile 4 "Karmic 9.10" off \
+
+5 "Noble 24.04" on 2> $tempfile
 
 retval=$? retval = $?
 
@@ -865,6 +909,10 @@ SYSTEM="jaunty";;
 4)
 
 SYSTEM="karmic";;
+
+5)
+
+SYSTEM="noble";;
 
 esac 
 #echo "Sistema: $SYSTEM" 
@@ -1127,7 +1175,7 @@ addRepoPartner $ choice "$ SYSTEM"
 
 dialog - backtitle "3rd parties" \
 
---checklist "Select repos: \ N3RD Parties" 15 80 24 \
+--checklist "Select repos: \ N3RD Parties" 20 80 30 \
 
 1 Abiword off \
 
@@ -1151,37 +1199,27 @@ Chromium 5 off \
 
 11 Gnome-do off \
 
-12 Medibuntu off \
-
 13 "OpenOffice 3.0" off \
 
 14 operas off \
 
 Oracle 15 off \
 
-16 Playdeb off \
-
 17 PlayOnLinux off \
-
-Skype off 18 \
 
 SMPlayer 19 off \
 
 Terminator 20 off \
 
-21 "Ubuntu Tweak" off \
-
-22 "VirtualBox" off \
-
-23 "Vlc" off \
-
-24 "Wine" off \
-
-25 "Media Center XBMCs" off \
-
 26 "KDE 4.3 RC" off \
 
-27 "Mozilla daily build" off 2> $ tempfile
+27 "Mozilla daily build" off \
+
+28 "Node.js LTS" off \
+
+29 "Docker CE" off \
+
+30 "Visual Studio Code" off 2> $ tempfile
 
 retval = $?
 

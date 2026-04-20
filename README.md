@@ -26,6 +26,8 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `soundcloud.sh`           | Downloads music from SoundCloud. Requires wget.                            |
 | `tedtalks_downloader.sh`  | Downloads TED Talks videos. Requires wget or curl.                        |
 | `vimeo_downloader.sh`     | Downloads videos from Vimeo. Requires wget or curl.                       |
+| `screencast`              | Records screen using wf-recorder. Supports start/stop with PID file. Saves to ~/Videos. |
+| `screencast2`             | Alternative screen recording script.                                       |
 
 ### 🔧 System Administration & Maintenance
 | Script Name             | Description                                                                 |
@@ -38,6 +40,8 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `vacuum.sh`               | Runs VACUUM on all SQLite databases found in the user's Firefox profile directories.  Checks if Firefox is running before proceeding. |
 | `vacuummoz.sh`            | Runs VACUUM on all SQLite databases in the user's Firefox and Thunderbird profile directories. Checks if Firefox and Thunderbird are running before proceeding. |
 | `vacuum_vscoders.sh`      | Removes unwanted locale files and license files from VS Code-based IDEs (Windsurf, Cursor, VSCode, VSCodium, Antigravity) to save disk space. Requires root privileges. |
+| `vacuum_vscode_locales_licenses.sh` | Alternative script to clean VS Code locales and licenses. |
+| `vacuum_vscode_locales_licensesV2.sh` | Updated version of VS Code cleaner script. |
 | `purge-alien-loc.sh`      | Removes oriental/medio-oriental/african fonts and LibreOffice localizations not useful in IT/GB/USA. Keeps en-gb, en-us, it. Requires root privileges. |
 | `clean_logs.sh`           | Cleans logs and caches from npm, AI tools (Gemini, Kimi, Qwen), pip, gem, and browser caches (Firefox, Zen) if browsers are not running. Reports space reclaimed. |
 
@@ -57,6 +61,10 @@ This project is licensed under the GNU General Public License v3.0.  See the LIC
 | `genDeployCodeberg`       |  Generates an ssh key for Codeberg repositories.                                                |
 | `genDeployKey`            |  Generates an ssh key for Github repositories.                                                  |
 | `git-submodule-remove`    | Removes a git submodule from your superproject. Requires git.               |
+| `git-clean`               | Removes files from git history using filter-branch and cleans up refs. Requires git. |
+| `git-fatfiles`            | Displays the top 40 largest files in git history with colored output. Requires git. |
+| `lastpass2pass.rb`        | Imports LastPass CSV exports into the pass password manager. Requires ruby. |
+| `passmenu`                | Interactive password selection from pass using dmenu. Requires pass and dmenu. |
 | `submodule-manager.sh`    | Manages git submodules: add, remove, or update submodules with colored output. Interactive prompts for user input. |
 | `godownload.sh`           | Downloads and installs Go.  Detects the user's shell and adds necessary environment variables. Requires wget and tar. |
 | `install-build-deps.sh`   | Installs build dependencies for Chromium. Requires root privileges.  Supports Ubuntu 8.04, 8.10, and 9.04 on x86 architectures. |

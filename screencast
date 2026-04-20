@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+VIDEO_DIR="$HOME/Videos"
+PIDFILE="/tmp/screencast.pid"
+
+mkdir -p "$VIDEO_DIR"
+
+if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null; then
+  kill -INT $(cat "$PIDFILE")
+  rm "$PIDFILE"
+  notify-send "Recording Stopped" "Saved to $VIDEO_DIR" -a 'ffmpeg'
+else
+  # Capture selection from slop
+  GEOMETRY=$(slop -f "%x %y %w %h" -c 1,0,0,0.5 -b 3)
+
+  if [ -z "$GEOMETRY" ]; then
+    exit 0
+  fi
+
+  read -r X Y W H <<<"$GEOMETRY"
+
+  # Start ffmpeg with "vf scale" to ensure even dimensions
+  ffmpeg -f x11grab -s "${W}x${H}" -i ":0.0+${X},${Y}" \
+    -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
+    -c:v libx264 -pix_fmt yuv420p \
+    "$VIDEO_DIR/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4" &
+
+  echo $! >"$PIDFILE"
+  notify-send "Recording Started" "Capturing selected area" -a 'ffmpeg'
+fi

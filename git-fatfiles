@@ -1,0 +1,64 @@
+#!/bin/bash
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}======================================${NC}"
+echo -e "${BLUE}  Top 40 Largest Files in Git History${NC}"
+echo -e "${BLUE}======================================${NC}"
+echo ""
+printf "%-12s %-10s %s\n" "SIZE" "HASH" "FILE PATH"
+printf "%-12s %-10s %s\n" "----" "----" "---------"
+
+git rev-list --objects --all | \
+  git cat-file --batch-check='%(objectsize) %(objectname) %(rest)' | \
+  awk '$3 != "" {print $0}' | \
+  sort -n | \
+  tail -n40 | \
+  while read size hash path; do
+    human_size=$(echo $size | numfmt --to=iec-i --suffix=B --padding=10)
+    short_hash=$(echo $hash | cut -c1-10)
+    
+    # Color based on size
+    if [ $size -gt 10485760 ]; then  # > 10MB
+      color=$RED
+    elif [ $size -gt 1048576 ]; then  # > 1MB
+      color=$YELLOW
+    else
+      color=$GREEN
+    fi
+    
+    printf "${color}%-12s${NC} %-10s %s\n" "$human_size" "$short_hash" "$path"
+  done
+
+echo ""
+echo -e "${BLUE}======================================${NC}"
+echo ""
+echo -e "${CYAN}📋 How to Remove a File from History:${NC}"
+echo ""
+echo -e "${YELLOW}⚠️  WARNING: This rewrites history! Backup first!${NC}"
+echo ""
+echo "Option 1: Using git filter-repo (RECOMMENDED)"
+echo "  $ git filter-repo --path path/to/file --invert-paths"
+echo ""
+echo "Option 2: Using BFG Repo-Cleaner (FASTEST)"
+echo "  $ bfg --delete-files filename.ext"
+echo "  $ git reflog expire --expire=now --all"
+echo "  $ git gc --prune=now --aggressive"
+echo ""
+echo "Option 3: Using git filter-branch (OLD METHOD)"
+echo "  $ git filter-branch --index-filter \\"
+echo "      'git rm --cached --ignore-unmatch path/to/file' \\"
+echo "      HEAD"
+echo ""
+echo -e "${RED}After removal, you MUST:${NC}"
+echo "  1. Force push: git push origin --force --all"
+echo "  2. Tell teammates to re-clone the repo"
+echo ""
+echo "Example to remove a file from above:"
+echo -e "  ${GREEN}\$ git filter-repo --path data/backup-2023.zip --invert-paths${NC}"
+echo ""
+echo -e "${BLUE}======================================${NC}"
