@@ -43,7 +43,7 @@ bytes_to_human() {
 }
 
 # Calculate initial size of all .sqlite files
-PRE_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}")
+PRE_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR")
 
 echo "--- Vacuuming Browser Databases: $(date) ---"
 
@@ -59,6 +59,9 @@ ZEN_PROFILE_DIRS=(
   "$HOME/.var/app/app.zen_browser.zen/.zen"
   "$HOME/snap/zen/common/.zen"
 )
+
+# Opencode directory
+OPENCODE_DIR="$HOME/.local/share/opencode"
 
 for profile_base in "${PROFILE_DIRS[@]}"; do
   if [ -f "$profile_base/profiles.ini" ]; then
@@ -104,8 +107,25 @@ for profile_base in "${ZEN_PROFILE_DIRS[@]}"; do
   fi
 done
 
+# Process Opencode SQLite files
+if [ -d "$OPENCODE_DIR" ]; then
+  cd "$OPENCODE_DIR" 2>/dev/null
+  if [ $? == 0 ]; then
+    echo "In Opencode $(pwd)"
+    echo -e "    running VACUUM...\n"
+
+    for F in $(find . -type f -name '*.sqlite' -print); do
+      sqlite3 $F "VACUUM;"
+    done
+
+    echo -e "Done in Opencode $(pwd)\n"
+  else
+    echo -e "\nCould not enter Opencode directory $OPENCODE_DIR, skipping it\n"
+  fi
+fi
+
 # Calculate final size and report savings
-POST_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}")
+POST_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR")
 SAVED_BYTES=$((PRE_SIZE - POST_SIZE))
 
 echo "--- Vacuum Complete ---"
