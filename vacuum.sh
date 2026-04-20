@@ -8,8 +8,10 @@
 username=$(whoami)
 proc_firefox="$(ps aux | grep $username | grep -v $0 | grep firefox | grep -v grep)"
 proc_zen="$(ps aux | grep $username | grep -v $0 | grep -E "(zen|zen-bin)" | grep -v grep)"
-if [ "$proc_firefox" != "" ] || [ "$proc_zen" != "" ]; then
-  echo "Shutdown Firefox and/or Zen browser first!"
+proc_kilo="$(ps aux | grep $username | grep -v $0 | grep kilo | grep -v grep)"
+proc_opencode="$(ps aux | grep $username | grep -v $0 | grep opencode | grep -v grep)"
+if [ "$proc_firefox" != "" ] || [ "$proc_zen" != "" ] || [ "$proc_kilo" != "" ] || [ "$proc_opencode" != "" ]; then
+  echo "Shutdown Firefox, Zen, Kilo, and/or Opencode first!"
   exit 1
 fi
 
