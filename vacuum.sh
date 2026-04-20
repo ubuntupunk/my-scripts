@@ -43,7 +43,7 @@ bytes_to_human() {
 }
 
 # Calculate initial size of all .sqlite files
-PRE_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR")
+PRE_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR" "$KILO_DIR")
 
 echo "--- Vacuuming Browser Databases: $(date) ---"
 
@@ -62,6 +62,9 @@ ZEN_PROFILE_DIRS=(
 
 # Opencode directory
 OPENCODE_DIR="$HOME/.local/share/opencode"
+
+# Kilo directory
+KILO_DIR="$HOME/.local/share/kilo"
 
 for profile_base in "${PROFILE_DIRS[@]}"; do
   if [ -f "$profile_base/profiles.ini" ]; then
@@ -124,8 +127,25 @@ if [ -d "$OPENCODE_DIR" ]; then
   fi
 fi
 
+# Process Kilo SQLite files
+if [ -d "$KILO_DIR" ]; then
+  cd "$KILO_DIR" 2>/dev/null
+  if [ $? == 0 ]; then
+    echo "In Kilo $(pwd)"
+    echo -e "    running VACUUM...\n"
+
+    for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
+      sqlite3 $F "VACUUM;"
+    done
+
+    echo -e "Done in Kilo $(pwd)\n"
+  else
+    echo -e "\nCould not enter Kilo directory $KILO_DIR, skipping it\n"
+  fi
+fi
+
 # Calculate final size and report savings
-POST_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR")
+POST_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR" "$KILO_DIR")
 SAVED_BYTES=$((PRE_SIZE - POST_SIZE))
 
 echo "--- Vacuum Complete ---"
