@@ -5,24 +5,80 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation.
 
+usage() {
+  echo "Usage: $0 [OPTIONS]"
+  echo "Options:"
+  echo "  --firefox   Vacuum Firefox browser databases"
+  echo "  --zen       Vacuum Zen browser databases"
+  echo "  --opencode  Vacuum Opencode databases"
+  echo "  --kilo      Vacuum Kilo databases"
+  echo "  --all       Vacuum all supported databases (default)"
+  echo "  -h, --help  Show this help message"
+  exit 1
+}
+
+TARGETS=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --firefox)
+      TARGETS="$TARGETS firefox"
+      shift
+      ;;
+    --zen)
+      TARGETS="$TARGETS zen"
+      shift
+      ;;
+    --opencode)
+      TARGETS="$TARGETS opencode"
+      shift
+      ;;
+    --kilo)
+      TARGETS="$TARGETS kilo"
+      shift
+      ;;
+    --all)
+      TARGETS="firefox zen opencode kilo"
+      shift
+      ;;
+    -h|--help)
+      usage
+      ;;
+    *)
+      echo "Unknown option: $1"
+      usage
+      ;;
+  esac
+done
+
+if [ -z "$TARGETS" ]; then
+  TARGETS="firefox zen opencode kilo"
+fi
+
 username=$(whoami)
 proc_firefox="$(ps aux | grep $username | grep -v $0 | grep firefox | grep -v grep)"
 proc_zen="$(ps aux | grep $username | grep -v $0 | grep -E "(zen|zen-bin)" | grep -v grep)"
 proc_kilo="$(ps aux | grep $username | grep -v $0 | grep kilo | grep -v grep)"
 proc_opencode="$(ps aux | grep $username | grep -v $0 | grep opencode | grep -v grep)"
-if [ "$proc_firefox" != "" ] || [ "$proc_zen" != "" ] || [ "$proc_kilo" != "" ] || [ "$proc_opencode" != "" ]; then
-  echo "Shutdown Firefox, Zen, Kilo, and/or Opencode first!"
-  exit 1
-fi
+
+check_running() {
+  local target=$1
+  local proc_var="proc_$target"
+  if [ "${!proc_var}" != "" ]; then
+    echo "Shutdown $target first!"
+    exit 1
+  fi
+}
+
+for target in $TARGETS; do
+  check_running "$target"
+done
 
 curdir=$(pwd)
 
-# Function to calculate total size of .sqlite and .db files in directories
 get_sqlite_size() {
   local total=0
   for base_dir in "$@"; do
     if [ -d "$base_dir" ]; then
-      # Find all .sqlite and .db files and sum their sizes
       while IFS= read -r -d '' file; do
         size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
         total=$((total + size))
@@ -32,7 +88,6 @@ get_sqlite_size() {
   echo "$total"
 }
 
-# Function to convert bytes to human readable
 bytes_to_human() {
   local bytes=$1
   if [ "$bytes" -ge 1048576 ]; then
@@ -44,109 +99,85 @@ bytes_to_human() {
   fi
 }
 
-# Calculate initial size of all .sqlite files
+PRE_SIZE=0
+PROFILE_DIRS=()
+ZEN_PROFILE_DIRS=()
+OPENCODE_DIR=""
+KILO_DIR=""
+
+for target in $TARGETS; do
+  case "$target" in
+    firefox)
+      PROFILE_DIRS+=("$HOME/.mozilla/firefox")
+      PROFILE_DIRS+=("$HOME/snap/firefox/common/.mozilla/firefox")
+      ;;
+    zen)
+      ZEN_PROFILE_DIRS+=("$HOME/.zen")
+      ZEN_PROFILE_DIRS+=("$HOME/.var/app/app.zen_browser.zen/.zen")
+      ZEN_PROFILE_DIRS+=("$HOME/snap/zen/common/.zen")
+      ;;
+    opencode)
+      OPENCODE_DIR="$HOME/.local/share/opencode"
+      ;;
+    kilo)
+      KILO_DIR="$HOME/.local/share/kilo"
+      ;;
+  esac
+done
+
 PRE_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR" "$KILO_DIR")
 
-echo "--- Vacuuming Browser Databases: $(date) ---"
+echo "--- Vacuuming: $TARGETS - $(date) ---"
 
-# Check both native and snap Firefox profile directories
-PROFILE_DIRS=(
-  "$HOME/.mozilla/firefox"
-  "$HOME/snap/firefox/common/.mozilla/firefox"
-)
+vacuum_dir() {
+  local label=$1
+  local dir=$2
+  if [ -d "$dir" ]; then
+    cd "$dir" 2>/dev/null
+    if [ $? == 0 ]; then
+      echo "In $label $(pwd)"
+      echo -e "    running VACUUM...\n"
 
-# Zen browser profile directories
-ZEN_PROFILE_DIRS=(
-  "$HOME/.zen"
-  "$HOME/.var/app/app.zen_browser.zen/.zen"
-  "$HOME/snap/zen/common/.zen"
-)
+      for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
+        sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
+      done
 
-# Opencode directory
-OPENCODE_DIR="$HOME/.local/share/opencode"
-
-# Kilo directory
-KILO_DIR="$HOME/.local/share/kilo"
-
-for profile_base in "${PROFILE_DIRS[@]}"; do
-  if [ -f "$profile_base/profiles.ini" ]; then
-    for dir in $(cat "$profile_base/profiles.ini" | grep Path= | sed -e 's/Path=//'); do
-      cd "$profile_base/$dir" 2>/dev/null
-      if [ $? == 0 ]; then
-        echo "In $(pwd)"
-        echo -e "    running VACUUM...\n"
-
-          for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-            sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
-          done
-
-        echo -e "Done in $(pwd)\n"
-      else
-        echo -e "\nCould not enter directory $dir, skipping it\n"
-      fi
-    done
+      echo -e "Done in $label $(pwd)\n"
+    else
+      echo -e "\nCould not enter directory $dir, skipping it\n"
+    fi
   fi
-done
+}
 
-# Process Zen browser profiles
-for profile_base in "${ZEN_PROFILE_DIRS[@]}"; do
-  if [ -d "$profile_base" ]; then
-    # Zen may not have profiles.ini, find profile directories directly
-    for profile_dir in "$profile_base"/*/; do
-      if [ -d "$profile_dir" ]; then
-        cd "$profile_dir" 2>/dev/null
-        if [ $? == 0 ]; then
-          echo "In Zen $(pwd)"
-          echo -e "    running VACUUM...\n"
-
-          for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-            sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
+for target in $TARGETS; do
+  case "$target" in
+    firefox)
+      for profile_base in "${PROFILE_DIRS[@]}"; do
+        if [ -f "$profile_base/profiles.ini" ]; then
+          for dir in $(cat "$profile_base/profiles.ini" | grep Path= | sed -e 's/Path=//'); do
+            vacuum_dir "Firefox" "$profile_base/$dir"
           done
-
-          echo -e "Done in Zen $(pwd)\n"
-        else
-          echo -e "\nCould not enter Zen directory $profile_dir, skipping it\n"
         fi
-      fi
-    done
-  fi
+      done
+      ;;
+    zen)
+      for profile_base in "${ZEN_PROFILE_DIRS[@]}"; do
+        if [ -d "$profile_base" ]; then
+          for profile_dir in "$profile_base"/*/; do
+            vacuum_dir "Zen" "$profile_dir"
+          done
+        fi
+      done
+      ;;
+    opencode)
+      vacuum_dir "Opencode" "$OPENCODE_DIR"
+      ;;
+    kilo)
+      vacuum_dir "Kilo" "$KILO_DIR"
+      ;;
+  esac
 done
 
-# Process Opencode SQLite files
-if [ -d "$OPENCODE_DIR" ]; then
-  cd "$OPENCODE_DIR" 2>/dev/null
-  if [ $? == 0 ]; then
-    echo "In Opencode $(pwd)"
-    echo -e "    running VACUUM...\n"
-
-    for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-      sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
-    done
-
-    echo -e "Done in Opencode $(pwd)\n"
-  else
-    echo -e "\nCould not enter Opencode directory $OPENCODE_DIR, skipping it\n"
-  fi
-fi
-
-# Process Kilo SQLite files
-if [ -d "$KILO_DIR" ]; then
-  cd "$KILO_DIR" 2>/dev/null
-  if [ $? == 0 ]; then
-    echo "In Kilo $(pwd)"
-    echo -e "    running VACUUM...\n"
-
-    for F in $(find . -type f \( -name '*.sqlite' -o -name '*.db' \) -print); do
-      sqlite3 $F "PRAGMA wal_checkpoint(PASSIVE); VACUUM;"
-    done
-
-    echo -e "Done in Kilo $(pwd)\n"
-  else
-    echo -e "\nCould not enter Kilo directory $KILO_DIR, skipping it\n"
-  fi
-fi
-
-# Calculate final size and report savings
 POST_SIZE=$(get_sqlite_size "${PROFILE_DIRS[@]}" "${ZEN_PROFILE_DIRS[@]}" "$OPENCODE_DIR" "$KILO_DIR")
 SAVED_BYTES=$((PRE_SIZE - POST_SIZE))
 
@@ -154,5 +185,4 @@ echo "--- Vacuum Complete ---"
 echo "Space reclaimed: $(bytes_to_human $SAVED_BYTES)"
 echo "-------------------------"
 
-cd $curdir
-
+cd "$curdir"
