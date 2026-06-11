@@ -1,0 +1,23 @@
+# ┌───────────── min (0-59)
+# │ ┌─────────── hour (0-23)
+# │ │ ┌───────── dom (1-31)
+# │ │ │ ┌─────── mon (1-12)
+# │ │ │ │ ┌───── dow (0-6, 0=Sun)
+# │ │ │ │ │
+# * * * * *  command_to_execute
+
+0 0 * * 0 /usr/local/bin/uv cache prune > /home/ubuntupunk/uv_prune.log 2>&1
+# Every Sunday at 3 AM: Deep clean the pnpm store
+0 3 * * 0 /usr/bin/pnpm store prune > /home/ubuntupunk/pnpm_prune.log 2>&1
+# Every Sunday at 9 AM: Clean Bun cache
+0 9 * * 0 /home/ubuntupunk/.bun/bin/bun pm cache rm -g > /home/ubuntupunk/bun_cache_rm.log 2>&1
+# clean logs and cache every day at midnight
+0 0 * * 0 /home/ubuntupunk/.local.bin/clean_logs.sh >> /home/ubuntupunk/cleanup_history.log 2>&1
+#clean ide locale every Sunday at 9 AM
+0 9 * * 0 /home/ubuntupunk/.local/bin/vacuum_vscoders.sh >> /home/ubuntupunk/vacuum_history.log 2>&1
+#remove temp files every day at midnight
+0 0 * * * rm -rf /tmp/* > /home/ubuntupunk/tmp_cleanup.log 2>&1
+# update package lists every day at 4 PM
+ 0 4 * * * apt update && apt list --upgradable > /var/log/upgrades.log 
+#Rotae logs every day at 11 AM
+0 11 * * * /usr/sbin/logrotate /etc/logrotate.conf
